@@ -4,13 +4,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Properties;
 
 public class OpenFolder {
 
+    private static String defaultDirectory;
+
     public static void main(String[] args) {
+        // Load default directory from properties file
+        loadDefaultDirectory();
+
         // Create the JFrame (the window)
         JFrame frame = new JFrame("Search and Open Folder");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -70,6 +75,20 @@ public class OpenFolder {
             }
         });
 
+        // Create a menu bar with option to set default directory
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu("Settings");
+        JMenuItem setDirectoryItem = new JMenuItem("Set Default Directory");
+        setDirectoryItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setDefaultDirectory(frame);
+            }
+        });
+        menu.add(setDirectoryItem);
+        menuBar.add(menu);
+        frame.setJMenuBar(menuBar);
+
         // Add components to the frame
         frame.add(label);
         frame.add(textField);
@@ -82,14 +101,14 @@ public class OpenFolder {
 
     // Method to perform the search
     private static void performSearch(String searchString, DefaultListModel<String> folderListModel, JFrame frame) {
-        // Define the parent directory
-        String parentDirectory = "T:\\Current Projects";  // Replace with your folder path
+        // Use the default directory
+        if (defaultDirectory == null || defaultDirectory.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Default directory not set. Please set it in the settings.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        // Clear the previous search results
-        folderListModel.clear();
-
-        // Search for folders that contain the search string
-        File directory = new File(parentDirectory);
+        File directory = new File(defaultDirectory);
         if (directory.exists() && directory.isDirectory()) {
             File[] subfolders = directory.listFiles(File::isDirectory);
             ArrayList<String> matchingFolders = new ArrayList<>();
@@ -102,6 +121,7 @@ public class OpenFolder {
                 }
             }
 
+            folderListModel.clear(); // Clear previous results
             if (!matchingFolders.isEmpty()) {
                 // Add matching folders to the list
                 for (String folderName : matchingFolders) {
@@ -111,22 +131,55 @@ public class OpenFolder {
                 JOptionPane.showMessageDialog(frame, "No folders found.", "Info", JOptionPane.INFORMATION_MESSAGE);
             }
         } else {
-            JOptionPane.showMessageDialog(frame, "Parent directory not found.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Default directory not found.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     // Method to open the selected folder
     private static void openSelectedFolder(JList<String> folderList, JFrame frame) {
         String selectedFolder = folderList.getSelectedValue();
-        if (selectedFolder != null) {
-            String parentDirectory = "T:\\Current Projects";  // Replace with your folder path
-            File folder = new File(parentDirectory, selectedFolder);
-
+        if (selectedFolder != null && defaultDirectory != null) {
+            File folder = new File(defaultDirectory, selectedFolder);
             try {
                 Desktop.getDesktop().open(folder);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(frame, "Error opening folder.", "Error", JOptionPane.ERROR_MESSAGE);
             }
+        }
+    }
+
+    // Method to set the default directory
+    private static void setDefaultDirectory(JFrame frame) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int returnValue = fileChooser.showOpenDialog(frame);
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedDirectory = fileChooser.getSelectedFile();
+            defaultDirectory = selectedDirectory.getAbsolutePath();
+            saveDefaultDirectory();
+        }
+    }
+
+    // Method to load the default directory from properties file
+    private static void loadDefaultDirectory() {
+        Properties properties = new Properties();
+        try (FileInputStream input = new FileInputStream("config.properties")) {
+            properties.load(input);
+            defaultDirectory = properties.getProperty("defaultDirectory", "");
+        } catch (IOException e) {
+            defaultDirectory = "";
+        }
+    }
+
+    // Method to save the default directory to properties file
+    private static void saveDefaultDirectory() {
+        Properties properties = new Properties();
+        properties.setProperty("defaultDirectory", defaultDirectory);
+        try (FileOutputStream output = new FileOutputStream("config.properties")) {
+            properties.store(output, null);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
