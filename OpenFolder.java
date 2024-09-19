@@ -1,0 +1,133 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class OpenFolder {
+
+    public static void main(String[] args) {
+        // Create the JFrame (the window)
+        JFrame frame = new JFrame("Search and Open Folder");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(500, 200);
+        frame.setLayout(new FlowLayout());
+
+        // Create label and text field for folder name input
+        JLabel label = new JLabel("Search for:");
+        JTextField textField = new JTextField(25);
+
+        // Create the button
+        JButton button = new JButton("Search");
+
+        // Create a list to display search results
+        DefaultListModel<String> folderListModel = new DefaultListModel<>();
+        JList<String> folderList = new JList<>(folderListModel);
+        folderList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        JScrollPane scrollPane = new JScrollPane(folderList);
+        scrollPane.setPreferredSize(new Dimension(450, 80));
+
+        // Add action listener for the button
+        ActionListener searchAction = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                performSearch(textField.getText().toLowerCase(), folderListModel, frame);
+            }
+        };
+
+        button.addActionListener(searchAction);
+
+        // Add key listener to the text field to listen for Enter key press
+        textField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    searchAction.actionPerformed(null);
+                }
+            }
+        });
+
+        // Add key listener to the list to listen for Enter key press
+        folderList.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    openSelectedFolder(folderList, frame);
+                }
+            }
+        });
+
+        // Add mouse listener to open the selected folder on double click
+        folderList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2) {
+                    openSelectedFolder(folderList, frame);
+                }
+            }
+        });
+
+        // Add components to the frame
+        frame.add(label);
+        frame.add(textField);
+        frame.add(button);
+        frame.add(scrollPane);
+
+        // Make the frame visible
+        frame.setVisible(true);
+    }
+
+    // Method to perform the search
+    private static void performSearch(String searchString, DefaultListModel<String> folderListModel, JFrame frame) {
+        // Define the parent directory
+        String parentDirectory = "T:\\Current Projects";  // Replace with your folder path
+
+        // Clear the previous search results
+        folderListModel.clear();
+
+        // Search for folders that contain the search string
+        File directory = new File(parentDirectory);
+        if (directory.exists() && directory.isDirectory()) {
+            File[] subfolders = directory.listFiles(File::isDirectory);
+            ArrayList<String> matchingFolders = new ArrayList<>();
+
+            if (subfolders != null) {
+                for (File folder : subfolders) {
+                    if (folder.getName().toLowerCase().contains(searchString)) {
+                        matchingFolders.add(folder.getName());
+                    }
+                }
+            }
+
+            if (!matchingFolders.isEmpty()) {
+                // Add matching folders to the list
+                for (String folderName : matchingFolders) {
+                    folderListModel.addElement(folderName);
+                }
+            } else {
+                JOptionPane.showMessageDialog(frame, "No folders found.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(frame, "Parent directory not found.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Method to open the selected folder
+    private static void openSelectedFolder(JList<String> folderList, JFrame frame) {
+        String selectedFolder = folderList.getSelectedValue();
+        if (selectedFolder != null) {
+            String parentDirectory = "T:\\Current Projects";  // Replace with your folder path
+            File folder = new File(parentDirectory, selectedFolder);
+
+            try {
+                Desktop.getDesktop().open(folder);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(frame, "Error opening folder.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+}
+
