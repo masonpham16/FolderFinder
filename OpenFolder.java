@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -19,15 +21,15 @@ public class OpenFolder {
         // Create the JFrame (the window)
         JFrame frame = new JFrame("Search and Open Folder");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 200);
+        frame.setSize(500, 300);
         frame.setLayout(new FlowLayout());
 
         // Create label and text field for folder name input
         JLabel label = new JLabel("Search for:");
         JTextField textField = new JTextField(25);
 
-        // Create the button
-        JButton button = new JButton("Search");
+        // Create the search button
+        JButton searchButton = new JButton("Search");
 
         // Create a list to display search results
         DefaultListModel<String> folderListModel = new DefaultListModel<>();
@@ -36,7 +38,21 @@ public class OpenFolder {
         JScrollPane scrollPane = new JScrollPane(folderList);
         scrollPane.setPreferredSize(new Dimension(450, 80));
 
-        // Add action listener for the button
+        // Create a panel to hold folder name and copy button
+        JPanel folderPanel = new JPanel();
+        folderPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        JButton copyButton = new JButton("Copy");
+        copyButton.setPreferredSize(new Dimension(70, 25)); // Set button size
+
+        // Add action listener for the copy button
+        copyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                copySelectedFolderName(folderList, frame);
+            }
+        });
+
+        // Add action listener for the search button
         ActionListener searchAction = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -44,7 +60,7 @@ public class OpenFolder {
             }
         };
 
-        button.addActionListener(searchAction);
+        searchButton.addActionListener(searchAction);
 
         // Add key listener to the text field to listen for Enter key press
         textField.addKeyListener(new KeyAdapter() {
@@ -89,11 +105,16 @@ public class OpenFolder {
         menuBar.add(menu);
         frame.setJMenuBar(menuBar);
 
+        // Add components to the folder panel
+        folderPanel.add(new JLabel("Selected Folder: "));
+        folderPanel.add(copyButton);
+        
         // Add components to the frame
         frame.add(label);
         frame.add(textField);
-        frame.add(button);
+        frame.add(searchButton);
         frame.add(scrollPane);
+        frame.add(folderPanel); // Add folder panel with copy button
 
         // Make the frame visible
         frame.setVisible(true);
@@ -148,6 +169,19 @@ public class OpenFolder {
         }
     }
 
+    // Method to copy the selected folder name to clipboard
+    private static void copySelectedFolderName(JList<String> folderList, JFrame frame) {
+        String selectedFolder = folderList.getSelectedValue();
+        if (selectedFolder != null) {
+            StringSelection stringSelection = new StringSelection(selectedFolder);
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(stringSelection, null);
+            JOptionPane.showMessageDialog(frame, "Folder name copied to clipboard!", "Info", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(frame, "No folder selected.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     // Method to set the default directory
     private static void setDefaultDirectory(JFrame frame) {
         JFileChooser fileChooser = new JFileChooser();
@@ -183,4 +217,3 @@ public class OpenFolder {
         }
     }
 }
-
