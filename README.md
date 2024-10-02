@@ -62,12 +62,14 @@ Updates :
 - Update README
 - Add icon
 
+10/02/2024
+- Copy button does not have pop-up anymore
+
 ----------------------------------
 
 TODO:
 - Create installer
 - Make it downloadable and installable on Windows
 - Make it downloadable and installable on Mac
-- Copy button does not need pop up to notify that you copied the folder name 
 - Add button to open the folder
 - Buttons need to be icons
