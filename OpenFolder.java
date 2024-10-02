@@ -176,7 +176,7 @@ public class OpenFolder {
             StringSelection stringSelection = new StringSelection(selectedFolder);
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             clipboard.setContents(stringSelection, null);
-            JOptionPane.showMessageDialog(frame, "Folder name copied to clipboard!", "Info", JOptionPane.INFORMATION_MESSAGE);
+            //JOptionPane.showMessageDialog(frame, "Folder name copied to clipboard!", "Info", JOptionPane.INFORMATION_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(frame, "No folder selected.", "Error", JOptionPane.ERROR_MESSAGE);
         }
