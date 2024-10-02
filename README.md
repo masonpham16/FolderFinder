@@ -37,7 +37,7 @@ Text inside the manifest file:
 
     Manifest-Version: 1.0
     Main-Class: OpenFolder
-    //make sure to leave an space below
+    //make sure to leave a space below
 
 
 Package the .jar file:
