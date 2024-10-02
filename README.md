@@ -16,10 +16,11 @@ It took too many steps.
 
 Of course I could put folders in my quicktab, but then that tab would be filled with about a hundred folders.
 
+----------------------------------
+
 # **How to use**
 
-- Clone this:
-
+Clone this:
 
     git clone https://github.com/masonpham16/FolderFinder.git
 
@@ -50,6 +51,8 @@ Then run the .jar file:
 If that works, you can use Launch4J to create an .exe file.
 on Launch4J you can press the play button to see if it starts up; if it doesn't, try to fix some bug.
 
+(new) You can now add icon to the .exe file.
+
 ----------------------------------
 
 Updates :
@@ -57,3 +60,14 @@ Updates :
 10/01/2024
 - Add copy button
 - Update README
+- Add icon
+
+----------------------------------
+
+TODO:
+- Create installer
+- Make it downloadable and installable on Windows
+- Make it downloadable and installable on Mac
+- Copy button does not need pop up to notify that you copied the folder name 
+- Add button to open the folder
+- Buttons need to be icons
