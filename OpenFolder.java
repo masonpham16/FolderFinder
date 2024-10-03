@@ -38,11 +38,25 @@ public class OpenFolder {
         JScrollPane scrollPane = new JScrollPane(folderList);
         scrollPane.setPreferredSize(new Dimension(450, 80));
 
-        // Create a panel to hold folder name and copy button
+        // Create a panel to hold the copy button
         JPanel folderPanel = new JPanel();
-        folderPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        JButton copyButton = new JButton("Copy");
-        copyButton.setPreferredSize(new Dimension(70, 25)); // Set button size
+        folderPanel.setLayout(new FlowLayout());
+
+	// Load the icon image (make sure the path to the image is correct)
+	ImageIcon copyIcon = new ImageIcon("META-INF/copyButton.png");
+
+	// Scale the image to fit the button size
+	Image scaledImage = copyIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+	ImageIcon scaledIcon = new ImageIcon(scaledImage);
+
+	// Create the copy button with the scaled icon
+	JButton copyButton = new JButton(scaledIcon);
+
+	// Set button size (optional)
+	copyButton.setPreferredSize(new Dimension(20, 20)); // Adjust as needed
+
+	// Set tooltip for the copy button
+	copyButton.setToolTipText("Copy selected folder name to clipboard");
 
         // Add action listener for the copy button
         copyButton.addActionListener(new ActionListener() {
@@ -108,7 +122,7 @@ public class OpenFolder {
         // Add components to the folder panel
         folderPanel.add(new JLabel("Selected Folder: "));
         folderPanel.add(copyButton);
-        
+
         // Add components to the frame
         frame.add(label);
         frame.add(textField);
@@ -176,7 +190,6 @@ public class OpenFolder {
             StringSelection stringSelection = new StringSelection(selectedFolder);
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             clipboard.setContents(stringSelection, null);
-            //JOptionPane.showMessageDialog(frame, "Folder name copied to clipboard!", "Info", JOptionPane.INFORMATION_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(frame, "No folder selected.", "Error", JOptionPane.ERROR_MESSAGE);
         }
