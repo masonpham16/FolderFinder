@@ -12,9 +12,6 @@ public class OpenFolder {
     private static String defaultDirectory;
 
     public static void main(String[] args) {
-        // Create an instance of OpenFolder to access getClass() for loading images
-        OpenFolder openFolderInstance = new OpenFolder();
-
         // Load default directory from properties file
         loadDefaultDirectory();
 
@@ -43,57 +40,22 @@ public class OpenFolder {
         folderPanel.setLayout(new FlowLayout());
 
         // Load the copy icon image
-        ImageIcon copyIcon = new ImageIcon(openFolderInstance.getClass().getResource("/META-INF/copyButton.png"));
-        Image scaledCopyImage = copyIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-        ImageIcon scaledCopyIcon = new ImageIcon(scaledCopyImage);
-
-        // Create the copy button with the scaled icon
-        JButton copyButton = new JButton(scaledCopyIcon);
-        copyButton.setPreferredSize(new Dimension(20, 20));
-        copyButton.setToolTipText("Copy selected folder name to clipboard");
-
-        // Add action listener for the copy button
-        copyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                copySelectedFolderName(folderList, frame);
-            }
-        });
-
-        // Load the open folder icon image
-        ImageIcon openFolderIcon = new ImageIcon(openFolderInstance.getClass().getResource("/META-INF/openButton.png"));
-        Image scaledOpenFolderImage = openFolderIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-        ImageIcon scaledOpenFolderIcon = new ImageIcon(scaledOpenFolderImage);
+        JButton copyButton = createButtonWithIcon("/META-INF/copyButton.png", "Copy selected folder name to clipboard");
+        copyButton.addActionListener(e -> copySelectedFolderName(folderList, frame));
 
         // Create the "Open Folder" button with the scaled icon
-        JButton openFolderButton = new JButton(scaledOpenFolderIcon);
-        openFolderButton.setPreferredSize(new Dimension(20, 20));
-        openFolderButton.setToolTipText("Open selected folder");
-
-        // Add action listener for the open folder button
-        openFolderButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openSelectedFolder(folderList, frame);
-            }
-        });
+        JButton openFolderButton = createButtonWithIcon("/META-INF/openButton.png", "Open selected folder");
+        openFolderButton.addActionListener(e -> openSelectedFolder(folderList, frame));
 
         // Add action listener for the search button
-        ActionListener searchAction = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                performSearch(textField.getText().toLowerCase(), folderListModel, frame);
-            }
-        };
-
-        searchButton.addActionListener(searchAction);
+        searchButton.addActionListener(e -> performSearch(textField.getText().toLowerCase(), folderListModel, frame));
 
         // Add key listener to the text field to listen for Enter key press
         textField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    searchAction.actionPerformed(null);
+                    performSearch(textField.getText().toLowerCase(), folderListModel, frame);
                 }
             }
         });
@@ -121,12 +83,7 @@ public class OpenFolder {
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Settings");
         JMenuItem setDirectoryItem = new JMenuItem("Set Default Directory");
-        setDirectoryItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setDefaultDirectory(frame);
-            }
-        });
+        setDirectoryItem.addActionListener(e -> setDefaultDirectory(frame));
         menu.add(setDirectoryItem);
         menuBar.add(menu);
         frame.setJMenuBar(menuBar);
@@ -145,6 +102,15 @@ public class OpenFolder {
 
         // Make the frame visible
         frame.setVisible(true);
+    }
+
+    // Method to create a button with an icon
+    private static JButton createButtonWithIcon(String iconPath, String tooltip) {
+        ImageIcon icon = new ImageIcon(OpenFolder.class.getResource(iconPath));
+        JButton button = new JButton(icon);
+        button.setPreferredSize(new Dimension(20, 20));
+        button.setToolTipText(tooltip);
+        return button;
     }
 
     // Method to load default directory from a properties file
@@ -183,7 +149,7 @@ public class OpenFolder {
             StringSelection selection = new StringSelection(selectedFolder);
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             clipboard.setContents(selection, selection);
-            //JOptionPane.showMessageDialog(frame, "Folder name copied to clipboard.");
+            JOptionPane.showMessageDialog(frame, "Folder name copied to clipboard.");
         } else {
             JOptionPane.showMessageDialog(frame, "No folder selected to copy.");
         }
@@ -212,7 +178,7 @@ public class OpenFolder {
         if (folders != null) {
             for (File folder : folders) {
                 if (folder.getName().toLowerCase().contains(query)) {
-                    folderListModel.addElement(folder.getName());
+                    folderListModel.addElement(folder.getAbsolutePath());
                 }
             }
         }
