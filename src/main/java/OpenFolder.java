@@ -4,7 +4,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Properties;
 
 public class OpenFolder {
@@ -79,7 +78,7 @@ public class OpenFolder {
             }
         });
 
-        // Create a menu bar with option to set default directory
+        // Create a menu bar with an option to set default directory
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Settings");
         JMenuItem setDirectoryItem = new JMenuItem("Set Default Directory");
@@ -107,8 +106,18 @@ public class OpenFolder {
     // Method to create a button with an icon
     private static JButton createButtonWithIcon(String iconPath, String tooltip) {
         ImageIcon icon = new ImageIcon(OpenFolder.class.getResource(iconPath));
+        
+        // Create the button with the icon
         JButton button = new JButton(icon);
-        button.setPreferredSize(new Dimension(20, 20));
+        
+        // Scale the button based on the original icon dimensions
+        int width = 32; // Desired button width
+        int height = 32; // Desired button height
+        Image scaledImage = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        button.setIcon(new ImageIcon(scaledImage));
+        
+        // Set button size
+        button.setPreferredSize(new Dimension(width, height));
         button.setToolTipText(tooltip);
         return button;
     }
