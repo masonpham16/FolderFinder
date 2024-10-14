@@ -38,11 +38,11 @@ public class OpenFolder {
         JPanel folderPanel = new JPanel();
         folderPanel.setLayout(new FlowLayout());
 
-        // Load the copy icon image
+        // Load the copy icon image with fallback
         JButton copyButton = createButtonWithIcon("/META-INF/copyButton.png", "Copy selected folder name to clipboard");
         copyButton.addActionListener(e -> copySelectedFolderName(folderList, frame));
 
-        // Create the "Open Folder" button with the scaled icon
+        // Load the "Open Folder" button with the scaled icon and fallback
         JButton openFolderButton = createButtonWithIcon("/META-INF/openButton.png", "Open selected folder");
         openFolderButton.addActionListener(e -> openSelectedFolder(folderList, frame));
 
@@ -70,8 +70,8 @@ public class OpenFolder {
         });
 
         // Add mouse listener to open the selected folder on double click
-        folderList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+        folderList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
                 if (evt.getClickCount() == 2) {
                     openSelectedFolder(folderList, frame);
                 }
@@ -97,26 +97,34 @@ public class OpenFolder {
         frame.add(textField);
         frame.add(searchButton);
         frame.add(scrollPane);
-        frame.add(folderPanel); 
+        frame.add(folderPanel);
 
         // Make the frame visible
         frame.setVisible(true);
     }
 
-    // Method to create a button with an icon
+    // Method to create a button with an icon and fallback if the icon isn't found
     private static JButton createButtonWithIcon(String iconPath, String tooltip) {
-        ImageIcon icon = new ImageIcon(OpenFolder.class.getResource(iconPath));
-        
-        // Create the button with the icon
-        JButton button = new JButton(icon);
-        
-        // Scale the button based on the original icon dimensions
-        int width = 32; // Desired button width
-        int height = 32; // Desired button height
+        ImageIcon icon;
+        try {
+            // Load icon from the classpath
+            icon = new ImageIcon(OpenFolder.class.getResource(iconPath));
+            if (icon.getImage() == null) {
+                throw new NullPointerException("Image not found");
+            }
+        } catch (Exception e) {
+            // Fallback to a simple button with text if the image is missing
+            System.err.println("Icon not found: " + iconPath + ". Using fallback button.");
+            JButton fallbackButton = new JButton("Action");
+            fallbackButton.setToolTipText(tooltip);
+            return fallbackButton;
+        }
+
+        // Create the button with the scaled icon
+        int width = 32;
+        int height = 32;
         Image scaledImage = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        button.setIcon(new ImageIcon(scaledImage));
-        
-        // Set button size
+        JButton button = new JButton(new ImageIcon(scaledImage));
         button.setPreferredSize(new Dimension(width, height));
         button.setToolTipText(tooltip);
         return button;
